@@ -14,7 +14,7 @@ public class UIElementXR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        xRCamera = CameraPointerManager.Instance.gameObject.GetComponent<Camera>(); //Llamamos aqui a la clase CameraPointerManager como instance en UIElementXR;
+        xRCamera = CameraPointerManager.instance.gameObject.GetComponent<Camera>(); //Llamamos aqui a la clase CameraPointerManager como instance en UIElementXR;
     }
 
     // Update is called once per frame
@@ -44,7 +44,7 @@ public class UIElementXR : MonoBehaviour
 
     public PointerEventData PlacePointer()
     {
-        Vector3 screePos = xRCamera.WorldToScreenPoint(CameraPointerManager.Instance.hitPoint);
+        Vector3 screePos = xRCamera.WorldToScreenPoint(CameraPointerManager.instance.hitPoint);
         var pointer = new PointerEventData(EventSystem.current);
         pointer.position = new Vector2(screePos.x, screePos.y);
         return pointer;
