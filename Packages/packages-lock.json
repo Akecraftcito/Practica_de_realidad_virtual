@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.coplaydev.unity-mcp": {
-      "version": "file:C:/Users/ESTUDIANTE/Downloads/unity-mcp-10.1.0/unity-mcp-10.1.0/MCPForUnity",
+      "version": "file:C:/Users/Usuario/Downloads/unity-mcp-beta/unity-mcp-beta/MCPForUnity",
       "depth": 0,
       "source": "local",
       "dependencies": {
@@ -17,14 +17,15 @@
       }
     },
     "com.google.xr.cardboard": {
-      "version": "file:C:/Users/ESTUDIANTE/Documents/cardboard-xr-plugin-1.34.0",
+      "version": "https://github.com/googlevr/cardboard-xr-plugin.git",
       "depth": 0,
-      "source": "local",
+      "source": "git",
       "dependencies": {
         "com.unity.inputsystem": "1.7.0",
         "com.unity.xr.management": "3.2.9",
         "com.unity.xr.legacyinputhelpers": "2.1.4"
-      }
+      },
+      "hash": "36ac9815b8f191fe11e149b7f323368fa86655a6"
     },
     "com.unity.ai.navigation": {
       "version": "2.0.14",
