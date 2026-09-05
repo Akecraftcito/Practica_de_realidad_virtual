@@ -84,7 +84,7 @@ public class ObjectController : MonoBehaviour
     /// <summary>
     /// This method is called by the Main Camera when it starts gazing at this GameObject.
     /// </summary>
-    public void OnPointerEnterXR()
+    public void OnPointerEnter()
     {
         SetMaterial(true);
     }
@@ -92,7 +92,7 @@ public class ObjectController : MonoBehaviour
     /// <summary>
     /// This method is called by the Main Camera when it stops gazing at this GameObject.
     /// </summary>
-    public void OnPointerExitXR()
+    public void OnPointerExit()
     {
         SetMaterial(false);
     }
@@ -101,7 +101,7 @@ public class ObjectController : MonoBehaviour
     /// This method is called by the Main Camera when it is gazing at this GameObject and the screen
     /// is touched.
     /// </summary>
-    public void OnPointerClickXR()
+    public void OnPointerClick()
     {
         TeleportRandomly();
     }

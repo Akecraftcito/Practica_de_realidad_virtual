@@ -18,7 +18,6 @@
 
 using Google.XR.Cardboard;
 using UnityEngine;
-using UnityEngine.XR.Management;
 
 /// <summary>
 /// Initializes Cardboard XR Plugin.
@@ -48,17 +47,6 @@ public class CardboardStartup : MonoBehaviour
     /// </summary>
     public void Update()
     {
-        // Only call Api methods if the XR loader is initialized
-        if (XRGeneralSettings.Instance == null || XRGeneralSettings.Instance.Manager == null)
-        {
-            return;
-        }
-
-        if (!XRGeneralSettings.Instance.Manager.isInitializationComplete)
-        {
-            return;
-        }
-
         if (Api.IsGearButtonPressed)
         {
             Api.ScanDeviceParams();
