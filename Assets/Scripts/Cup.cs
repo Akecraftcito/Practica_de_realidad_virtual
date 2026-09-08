@@ -10,12 +10,20 @@ public class Cup : MonoBehaviour {
 	public GameObject ball;
 
 	public Vector3 targetPosition;
+	private Vector3 initialPosition;
 
 	// Use this for initialization
 	void Start () {
-		targetPosition = transform.position;
+		initialPosition = transform.position;
+		targetPosition = initialPosition;
 	}
-	
+
+	public void ResetForRound () {
+		ball = null;
+		targetPosition = initialPosition;
+		transform.position = initialPosition;
+	}
+
 	// Update is called once per frame
 	void Update () {
 		transform.position = Vector3.Lerp (transform.position, targetPosition, Time.deltaTime * movingSpeed);
