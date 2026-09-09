@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// REQUISITO: este script va en el GameObject "Player" (el padre de Main Camera).
+// Permite mover la mirada con el mouse dentro del Editor de Unity, para poder probar
+// toda la interaccion sin necesidad de compilar al celular.
 public class CardboardSimulator : MonoBehaviour
 {
     public bool UseCardboardSimulator = true;
@@ -13,7 +16,7 @@ public class CardboardSimulator : MonoBehaviour
     [SerializeField] private float rotationY = 0.0f;
     private Camera cam;
 
-    void Start() 
+    void Start()
     {
 #if UNITY_EDITOR
         cam = Camera.main;
@@ -28,7 +31,7 @@ public class CardboardSimulator : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             float mouseX = Input.GetAxis("Mouse X") * horizontalSpeed;
-            float mouseY = Input.GetAxis("Mouse Y") * verticalSpeed; 
+            float mouseY = Input.GetAxis("Mouse Y") * verticalSpeed;
             rotationY += mouseX;
             rotationX -= mouseY;
             rotationX = Mathf.Clamp(rotationX, -45, 45);
@@ -42,5 +45,4 @@ public class CardboardSimulator : MonoBehaviour
         rotationX = 0;
         rotationY = cam.transform.localEulerAngles.y;
     }
-
 }

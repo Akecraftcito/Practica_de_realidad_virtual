@@ -1,188 +1,251 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class GameController : MonoBehaviour {
+public class GameController : MonoBehaviour
+{
+    public TextMesh infoText;
+    public GameObject ball;
+    public Player player;
+    public Cup[] cups;
 
-	public TextMesh infoText;
-	public GameObject ball;
-	public Player player;
-	public Cup[] cups;
+    public PauseMenuController pauseMenu;
 
-	private int hits;
-	private int attempts;
-	private bool roundEnded;
-	private GameObject pausePanel;
-	private Text scoreText;
+    private int aciertos = 0;
+    private int intentos = 0;
 
-	// Use this for initialization
-	void Start () {
-		infoText.text = "Escoje la copa correcta!";
+    private GameObject pausePanel;
+    private Text scoreText;
 
-		StartCoroutine (ShuffleRoutine());
-		CreatePauseCanvas();
-	}
+    void Start()
+    {
+        infoText.text = "�Elige el vaso correcto!";
 
-	// Update is called once per frame
-	void Update () {
-		if (player.picked && !roundEnded) {
-			roundEnded = true;
-			attempts++;
+        CreatePauseCanvas();
+        StartCoroutine(ShuffleRoutine());
+    }
 
-			if (player.won) {
-				hits++;
-				infoText.text = "Ganaste :D!";
-			} else {
-				infoText.text = "Perdiste :( intenta de nuevo!";
-			}
+    void Update()
+    {
+        if (player.picked)
+        {
+            intentos++;
 
-			StartCoroutine (ShowPausePanelAfterDelay());
-		}
-	}
+            if (player.won)
+            {
+                aciertos++;
+                infoText.text = "�Ganaste!";
+            }
+            else
+            {
+                infoText.text = "Perdiste, �int�ntalo de nuevo!";
+            }
 
-	private void CreatePauseCanvas () {
-		GameObject canvasObject = new GameObject("PauseCanvas");
-		Canvas canvas = canvasObject.AddComponent<Canvas>();
-		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-		canvasObject.AddComponent<CanvasScaler>();
-		canvasObject.AddComponent<GraphicRaycaster>();
+            player.picked = false;
+            StartCoroutine(ShowPauseMenuAfterDelay(3f));
+        }
+    }
 
-		pausePanel = CreateUiObject("PausePanel", canvas.transform);
-		Image panelImage = pausePanel.AddComponent<Image>();
-		panelImage.color = new Color(0f, 0f, 0f, 0.82f);
-		SetRectTransform(pausePanel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(420f, 300f), Vector2.zero);
+    private IEnumerator ShowPauseMenuAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
 
-		Text title = CreateText("Resultado", pausePanel.transform, 28);
-		title.text = "Resultado";
-		SetRectTransform(title.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(360f, 50f), new Vector2(0f, -35f));
+        if (pauseMenu != null)
+        {
+            pauseMenu.Show(aciertos, intentos);
+        }
+    }
 
-		scoreText = CreateText("Score", pausePanel.transform, 22);
-		SetRectTransform(scoreText.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(360f, 45f), new Vector2(0f, -95f));
+    private void CreatePauseCanvas()
+    {
+        GameObject canvasObject = new GameObject("PauseCanvas");
+        canvasObject.transform.SetParent(null, false);
+        canvasObject.transform.position = new Vector3(0f, 3.2f, 7.2f);
+        canvasObject.transform.rotation = Quaternion.identity;
+        canvasObject.transform.localScale = new Vector3(0.012f, 0.012f, 0.012f);
 
-		Button continueButton = CreateButton("Continuar", pausePanel.transform);
-		continueButton.onClick.AddListener(ContinueRound);
-		SetRectTransform(continueButton.gameObject, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(240f, 55f), new Vector2(0f, 20f));
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.worldCamera = Camera.main;
+        canvas.planeDistance = 1f;
+        canvasObject.AddComponent<CanvasScaler>();
+        canvasObject.AddComponent<GraphicRaycaster>();
 
-		Button exitButton = CreateButton("Salir", pausePanel.transform);
-		exitButton.onClick.AddListener(ExitGame);
-		SetRectTransform(exitButton.gameObject, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(240f, 55f), new Vector2(0f, -55f));
+        pausePanel = CreateUiObject("PausePanel", canvas.transform);
+        Image panelImage = pausePanel.AddComponent<Image>();
+        panelImage.color = new Color(0.05f, 0.05f, 0.08f, 0.88f);
+        SetRectTransform(pausePanel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(920f, 520f), new Vector2(0f, 40f));
 
-		pausePanel.SetActive(false);
-	}
+        Text title = CreateText("Resultado", pausePanel.transform, 50);
+        title.text = "Resultado";
+        title.color = new Color(1f, 1f, 1f, 1f);
+        SetRectTransform(title.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(720f, 90f), new Vector2(0f, -65f));
 
-	private GameObject CreateUiObject (string objectName, Transform parent) {
-		GameObject uiObject = new GameObject(objectName);
-		uiObject.transform.SetParent(parent, false);
-		return uiObject;
-	}
+        scoreText = CreateText("Score", pausePanel.transform, 38);
+        scoreText.text = "Aciertos: 0 / Intentos: 0";
+        scoreText.color = new Color(0.85f, 0.95f, 1f, 1f);
+        SetRectTransform(scoreText.gameObject, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(720f, 90f), new Vector2(0f, 90f));
 
-	private Text CreateText (string objectName, Transform parent, int fontSize) {
-		Text text = CreateUiObject(objectName, parent).AddComponent<Text>();
-		text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-		text.fontSize = fontSize;
-		text.color = Color.white;
-		text.alignment = TextAnchor.MiddleCenter;
-		return text;
-	}
+        Button continueButton = CreateButton("Continuar", pausePanel.transform);
+        continueButton.targetGraphic.color = new Color(0.22f, 0.58f, 0.89f, 1f);
+        continueButton.gameObject.tag = "Interactable";
+        SetRectTransform(continueButton.gameObject, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(420f, 90f), new Vector2(0f, -25f));
+        UpdateButtonCollider(continueButton.gameObject);
 
-	private Button CreateButton (string label, Transform parent) {
-		GameObject buttonObject = CreateUiObject(label + "Button", parent);
-		Image image = buttonObject.AddComponent<Image>();
-		image.color = new Color(0.12f, 0.45f, 0.75f, 1f);
-		Button button = buttonObject.AddComponent<Button>();
-		Text text = CreateText("Label", buttonObject.transform, 20);
-		text.text = label;
-		SetRectTransform(text.gameObject, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-		return button;
-	}
+        Button exitButton = CreateButton("Salir", pausePanel.transform);
+        exitButton.targetGraphic.color = new Color(0.74f, 0.24f, 0.24f, 1f);
+        exitButton.gameObject.tag = "Interactable";
+        SetRectTransform(exitButton.gameObject, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(420f, 90f), new Vector2(0f, -160f));
+        UpdateButtonCollider(exitButton.gameObject);
 
-	private void SetRectTransform (GameObject target, Vector2 anchorMin, Vector2 anchorMax, Vector2 size, Vector2 position) {
-		RectTransform rectTransform = target.GetComponent<RectTransform>();
-		rectTransform.anchorMin = anchorMin;
-		rectTransform.anchorMax = anchorMax;
-		rectTransform.sizeDelta = size;
-		rectTransform.anchoredPosition = position;
-	}
+        pauseMenu = GetComponent<PauseMenuController>();
+        if (pauseMenu == null)
+        {
+            pauseMenu = gameObject.AddComponent<PauseMenuController>();
+        }
 
-	private void ShowPausePanel () {
-		scoreText.text = "Aciertos: " + hits + " / Intentos: " + attempts;
-		pausePanel.SetActive(true);
-		Time.timeScale = 0f;
-	}
+        pauseMenu.panel = pausePanel;
+        pauseMenu.scoreText = scoreText;
+        pauseMenu.gameController = this;
 
-	private IEnumerator ShowPausePanelAfterDelay () {
-		yield return new WaitForSeconds (3f);
-		ShowPausePanel();
-	}
+        continueButton.onClick.AddListener(pauseMenu.OnContinuar);
+        exitButton.onClick.AddListener(pauseMenu.OnSalir);
 
-	public void ContinueRound () {
-		Time.timeScale = 1f;
-		pausePanel.SetActive(false);
-		player.picked = false;
-		player.won = false;
-		player.canPick = false;
-		roundEnded = false;
+        pausePanel.SetActive(false);
+    }
 
-		foreach (Cup cup in cups) {
-			cup.ResetForRound();
-		}
+    private GameObject CreateUiObject(string objectName, Transform parent)
+    {
+        GameObject uiObject = new GameObject(objectName);
+        uiObject.transform.SetParent(parent, false);
+        return uiObject;
+    }
 
-		infoText.text = "Escoje la copa correcta!";
-		StartCoroutine (ShuffleRoutine());
-	}
+    private Text CreateText(string objectName, Transform parent, int fontSize)
+    {
+        Text text = CreateUiObject(objectName, parent).AddComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = fontSize;
+        text.color = Color.white;
+        text.alignment = TextAnchor.MiddleCenter;
+        return text;
+    }
 
-	private void ExitGame () {
-		Time.timeScale = 1f;
+    private Button CreateButton(string label, Transform parent)
+    {
+        GameObject buttonObject = CreateUiObject(label + "Button", parent);
+        Image image = buttonObject.AddComponent<Image>();
+        image.color = new Color(0.12f, 0.45f, 0.75f, 1f);
 
-#if UNITY_EDITOR
-		UnityEditor.EditorApplication.isPlaying = false;
-#else
-		Application.Quit();
-#endif
-	}
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = image;
 
-	private IEnumerator ShuffleRoutine () {
-		yield return new WaitForSeconds (1f);
+        BoxCollider boxCollider = buttonObject.AddComponent<BoxCollider>();
+        boxCollider.isTrigger = false;
+        boxCollider.size = new Vector3(1f, 1f, 1f);
 
-		foreach (Cup cup in cups) {
-			cup.MoveUp ();
-		}
+        buttonObject.AddComponent<UIElementXR>();
 
-		yield return new WaitForSeconds (0.5f);
+        Text text = CreateText("Label", buttonObject.transform, 22);
+        text.text = label;
+        text.color = Color.white;
+        SetRectTransform(text.gameObject, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
-		Cup targetCup = cups[Random.Range(0, cups.Length)];
-		targetCup.ball = ball;
-		ball.transform.position = new Vector3 (
-			targetCup.transform.position.x,
-			ball.transform.position.y,
-			targetCup.transform.position.z
-		);
+        return button;
+    }
 
-		yield return new WaitForSeconds (1.0f);
+    private void UpdateButtonCollider(GameObject buttonObject)
+    {
+        BoxCollider boxCollider = buttonObject.GetComponent<BoxCollider>();
+        RectTransform rectTransform = buttonObject.GetComponent<RectTransform>();
 
-		foreach (Cup cup in cups) {
-			cup.MoveDown ();
-		}
+        if (boxCollider != null && rectTransform != null)
+        {
+            boxCollider.size = new Vector3(rectTransform.rect.width, rectTransform.rect.height, 1f);
+            boxCollider.center = Vector3.zero;
+        }
+    }
 
-		yield return new WaitForSeconds (1.0f);
+    private void SetRectTransform(GameObject target, Vector2 anchorMin, Vector2 anchorMax, Vector2 size, Vector2 position)
+    {
+        RectTransform rectTransform = target.GetComponent<RectTransform>();
+        rectTransform.anchorMin = anchorMin;
+        rectTransform.anchorMax = anchorMax;
+        rectTransform.sizeDelta = size;
+        rectTransform.anchoredPosition = position;
+    }
 
-		for (int i = 0; i < 5; i++) {
-			Cup cup1 = cups[Random.Range(0, cups.Length)];
-			Cup cup2 = cup1;
+    public void ReiniciarRonda()
+    {
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+        }
 
-			while (cup2 == cup1) {
-				cup2 = cups[Random.Range(0, cups.Length)];
-			}
+        if (infoText != null)
+        {
+            infoText.gameObject.SetActive(true);
+        }
 
-			Vector3 cup1Position = cup1.targetPosition;
+        player.picked = false;
+        player.won = false;
+        player.canPick = false;
 
-			cup1.targetPosition = cup2.targetPosition;
-			cup2.targetPosition = cup1Position;
+        foreach (Cup cup in cups)
+        {
+            cup.ball = null;
+            cup.ResetForRound();
+        }
 
-			yield return new WaitForSeconds (0.75f);
-		}
+        infoText.text = "�Elige el vaso correcto!";
+        StartCoroutine(ShuffleRoutine());
+    }
 
-		player.canPick = true;
-	}
+    private IEnumerator ShuffleRoutine()
+    {
+        yield return new WaitForSeconds(1f);
+
+        foreach (Cup cup in cups)
+        {
+            cup.MoveUp();
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        Cup targetCup = cups[Random.Range(0, cups.Length)];
+        targetCup.ball = ball;
+        ball.transform.position = new Vector3(
+            targetCup.transform.position.x,
+            ball.transform.position.y,
+            targetCup.transform.position.z
+        );
+
+        yield return new WaitForSeconds(1.0f);
+
+        foreach (Cup cup in cups)
+        {
+            cup.MoveDown();
+        }
+
+        yield return new WaitForSeconds(1.0f);
+
+        for (int i = 0; i < 5; i++)
+        {
+            Cup cup1 = cups[Random.Range(0, cups.Length)];
+            Cup cup2 = cup1;
+
+            while (cup2 == cup1)
+            {
+                cup2 = cups[Random.Range(0, cups.Length)];
+            }
+
+            Vector3 cup1Position = cup1.targetPosition;
+            cup1.targetPosition = cup2.targetPosition;
+            cup2.targetPosition = cup1Position;
+
+            yield return new WaitForSeconds(0.75f);
+        }
+
+        player.canPick = true;
+    }
 }

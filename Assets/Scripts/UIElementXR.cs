@@ -4,42 +4,51 @@ using UnityEngine;
 
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
+// REQUISITO: este script va en CADA botón con el que se quiera interactuar con la mirada
+// (en este ejercicio: los botones "Continuar" y "Salir" del Canvas de pausa). Además, el
+// botón necesita Tag=Interactable y un Collider del mismo tamaño que el propio botón.
 public class UIElementXR : MonoBehaviour
 {
     public UnityEvent OnXRPointerEnter;
     public UnityEvent OnXRPointerExit;
     private Camera xRCamera;
 
-    // Start is called before the first frame update
     void Start()
     {
-        xRCamera = CameraPointerManager.instance.gameObject.GetComponent<Camera>(); //Llamamos aqui a la clase CameraPointerManager como instance en UIElementXR;
+        xRCamera = CameraPointerManager.instance.gameObject.GetComponent<Camera>();
     }
 
-    // Update is called once per frame
-    public void OnPointerClicXR()
+    public void OnPointerClickXR()
     {
-        PointerEventData pointerEvent = PlacePointer();//Este es el elemento que nos permitira hacer clic sobre el elemento UI pero para ello se necesita una posicion la cual esta en la funcion PlacePointer
-        ExecuteEvents.Execute(this.gameObject, pointerEvent, ExecuteEvents.pointerClickHandler); //Ejecutamos el Evento al hacer clic;
+        Button button = GetComponent<Button>();
+
+        if (button != null)
+        {
+            button.onClick.Invoke();
+            return;
+        }
+
+        PointerEventData pointerEvent = PlacePointer();
+        ExecuteEvents.Execute(this.gameObject, pointerEvent, ExecuteEvents.pointerClickHandler);
     }
 
     public void OnPointerEnterXR()
     {
-        GazeManager.Instance.SetUpGaze(1.5f); //Reducimos el tiempo de carga del evento;
-        OnXRPointerEnter?.Invoke(); //Llamaremos al EventoEnterXR si no hay problemas..
+        GazeManager.Instance.SetUpGaze(1.5f);
+        OnXRPointerEnter?.Invoke();
 
-        PointerEventData pointerEvent = PlacePointer();//Este es el elemento que nos permitira hacer clic sobre el elemento UI pero para ello se necesita una posicion la cual esta en la funcion PlacePointer
-        ExecuteEvents.Execute(this.gameObject, pointerEvent, ExecuteEvents.pointerDownHandler); //Ejecutamos el Evento al hacer clic;
+        PointerEventData pointerEvent = PlacePointer();
+        ExecuteEvents.Execute(this.gameObject, pointerEvent, ExecuteEvents.pointerDownHandler);
     }
-
     public void OnPointerExitXR()
     {
-        GazeManager.Instance.SetUpGaze(2.5f); //Reducimos el tiempo de carga del evento;
-        OnXRPointerExit?.Invoke(); //Llamaremos al EventoEnterXR si no hay problemas..
+        GazeManager.Instance.SetUpGaze(2.5f);
+        OnXRPointerExit?.Invoke();
 
-        PointerEventData pointerEvent = PlacePointer();//Este es el elemento que nos permitira hacer clic sobre el elemento UI pero para ello se necesita una posicion la cual esta en la funcion PlacePointer
-        ExecuteEvents.Execute(this.gameObject, pointerEvent, ExecuteEvents.pointerUpHandler); //Ejecutamos el Evento al hacer clic;
+        PointerEventData pointerEvent = PlacePointer();
+        ExecuteEvents.Execute(this.gameObject, pointerEvent, ExecuteEvents.pointerUpHandler);
     }
 
     public PointerEventData PlacePointer()
